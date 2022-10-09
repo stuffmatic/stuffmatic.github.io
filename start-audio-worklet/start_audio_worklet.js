@@ -66,16 +66,16 @@ var MicrophoneMode;
 function startAudioWorklet(options) {
     var _a, _b, _c;
     return __awaiter(this, void 0, void 0, function* () {
-        const defaultSampleRate = 44100;
-        const sampleRate = (_a = options.sampleRate) !== null && _a !== void 0 ? _a : defaultSampleRate;
-        const microphoneMode = (_b = options.microphoneMode) !== null && _b !== void 0 ? _b : MicrophoneMode.required;
         // If WebAssembly is used, make sure it's supported by the browser
         const wasmIsSupported = typeof WebAssembly === "object" && typeof WebAssembly.instantiate === "function";
         if (!wasmIsSupported && options.wasmUrl !== undefined) {
             throw new WebAssemblyNotSupportedError();
         }
         // Create web audio context
-        let contextOptions = { sampleRate, latencyHint: "interactive" };
+        let contextOptions = { sampleRate: 44100, latencyHint: "interactive" };
+        if (options.audioContextOptions !== undefined) {
+            contextOptions = Object.assign(Object.assign({}, contextOptions), options.audioContextOptions);
+        }
         let context;
         if (window.webkitAudioContext) {
             // AudioContext is undefined in Safari and old versions of Chrome
@@ -92,11 +92,13 @@ function startAudioWorklet(options) {
             throw new AudioWorkletNotSupportedError();
         }
         // Request microphone access?
+        const microphoneMode = (_a = options.microphoneMode) !== null && _a !== void 0 ? _a : MicrophoneMode.required;
         let micStream = null;
-        const atLeastOneInputIsRequested = (_c = options.workletNodeOptions.numberOfInputs) !== null && _c !== void 0 ? _c : 0 > 0;
+        const atLeastOneInputIsRequested = (_b = options.workletNodeOptions.numberOfInputs) !== null && _b !== void 0 ? _b : 0 > 0;
         if (atLeastOneInputIsRequested && microphoneMode != MicrophoneMode.disabled) {
             try {
-                micStream = yield navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                const audioConstraints = (_c = options.microphoneStreamOptions) !== null && _c !== void 0 ? _c : true;
+                micStream = yield navigator.mediaDevices.getUserMedia({ audio: audioConstraints, video: false });
             }
             catch (e) {
                 if (microphoneMode == MicrophoneMode.required) {
