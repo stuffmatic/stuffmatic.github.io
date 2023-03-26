@@ -60,7 +60,7 @@ var MicrophoneMode;
 })(MicrophoneMode || (MicrophoneMode = {}));
 /**
  * Start and create an audio worklet node.
- * @param options See AudioWorkletOptions
+ * @param options See StartAudioWorkletOptions
  * @returns A promise that resolves with the created AudioWorkletNode.
  */
 function startAudioWorklet(options) {
@@ -72,7 +72,7 @@ function startAudioWorklet(options) {
             throw new WebAssemblyNotSupportedError();
         }
         // Create web audio context
-        let contextOptions = { sampleRate: 44100, latencyHint: "interactive" };
+        let contextOptions = { latencyHint: "interactive" };
         if (options.audioContextOptions !== undefined) {
             contextOptions = Object.assign(Object.assign({}, contextOptions), options.audioContextOptions);
         }
